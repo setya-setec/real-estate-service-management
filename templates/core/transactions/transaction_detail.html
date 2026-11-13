@@ -1,33 +1,54 @@
 {% extends 'core/base.html' %}
+{% load resms_ui %}
 {% block title %}{{ object.transaction_code }} | RESMS{% endblock %}
+{% block topbar_title %}Transactions{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-4">
-  <h1>Transaction {{ object.transaction_code }}</h1>
-  <div><a class="btn btn-outline-secondary" href="{% url 'core:transaction_list' %}">Back to Transactions</a>
-    {% if user.role == 'admin' or object.agent_id == user.pk %}<a class="btn btn-primary" href="{% url 'core:transaction_update' object.pk %}">Edit</a> <a class="btn btn-outline-danger" href="{% url 'core:transaction_delete' object.pk %}">Delete</a>{% endif %}
+<div class="page-header">
+  <div>
+    <div class="eyebrow"><a href="{% url 'core:transaction_list' %}">Transactions</a> &rsaquo; {{ object.transaction_code }}</div>
+    <h1>Transaction {{ object.transaction_code }}</h1>
+    <p class="subtitle d-flex flex-wrap align-items-center gap-2"><span class="badge-soft">{{ object.get_transaction_type_display }}</span>{{ object.status|status_badge }}</p>
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-outline-secondary" href="{% url 'core:transaction_list' %}"><i class="bi bi-arrow-left"></i>Back to Transactions</a>
+    {% if user.role == 'admin' or object.agent_id == user.pk %}
+    <a class="btn btn-primary" href="{% url 'core:transaction_update' object.pk %}"><i class="bi bi-pencil"></i>Edit</a>
+    <a class="btn btn-outline-danger" href="{% url 'core:transaction_delete' object.pk %}"><i class="bi bi-trash"></i>Delete</a>
+    {% endif %}
   </div>
 </div>
-<dl class="row">
-  <dt class="col-sm-3">Customer</dt><dd class="col-sm-9"><a href="{{ object.customer.get_absolute_url }}">{{ object.customer.full_name }}</a></dd>
-  <dt class="col-sm-3">Property</dt><dd class="col-sm-9"><a href="{{ object.property.get_absolute_url }}">{{ object.property.name }}</a> ({{ object.property.get_status_display }})</dd>
-  <dt class="col-sm-3">Agent</dt><dd class="col-sm-9">{{ object.agent }}</dd>
-  <dt class="col-sm-3">Source inquiry</dt><dd class="col-sm-9">{% if object.inquiry %}<a href="{{ object.inquiry.get_absolute_url }}">{{ object.inquiry.inquiry_code }}</a>{% else %}None{% endif %}</dd>
-  <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ object.get_transaction_type_display }}</dd>
-  <dt class="col-sm-3">{% if object.transaction_type == 'Rental' %}Monthly rent{% else %}Sale price{% endif %}</dt><dd class="col-sm-9">{{ object.amount|floatformat:2 }}</dd>
-  <dt class="col-sm-3">Transaction date</dt><dd class="col-sm-9">{{ object.transaction_date|date:'Y-m-d' }}</dd>
-  <dt class="col-sm-3">Status</dt><dd class="col-sm-9">{{ object.get_status_display }}</dd>
-  {% if object.transaction_type == 'Rental' %}<dt class="col-sm-3">Rental period</dt><dd class="col-sm-9">{{ object.start_date|date:'Y-m-d' }} to {{ object.end_date|date:'Y-m-d' }}</dd>{% endif %}
-  <dt class="col-sm-3">Created</dt><dd class="col-sm-9">{{ object.created_at|date:'Y-m-d H:i' }}</dd>
-  <dt class="col-sm-3">Updated</dt><dd class="col-sm-9">{{ object.updated_at|date:'Y-m-d H:i' }}</dd>
-</dl>
-<div class="row mt-4">
-  <section class="col-md-6"><h2 class="h4">Contracts</h2>
-    {% if user.role == 'admin' or object.agent_id == user.pk %}<a class="btn btn-outline-primary mb-3" href="{% url 'core:contract_create' %}?transaction={{ object.pk }}">Create Contract</a>{% endif %}
-    <ul class="list-group">{% for contract in object.contracts.all %}<li class="list-group-item"><a href="{{ contract.get_absolute_url }}">{{ contract }}</a> — {{ contract.status }}</li>{% empty %}<li class="list-group-item">No contracts yet.</li>{% endfor %}</ul>
-  </section>
-  <section class="col-md-6"><h2 class="h4">Payments</h2>
-    {% if user.role == 'admin' or object.agent_id == user.pk %}<a class="btn btn-outline-primary mb-3" href="{% url 'core:payment_create' %}?transaction={{ object.pk }}">Record Payment</a>{% endif %}
-    <ul class="list-group">{% for payment in object.payments.all %}<li class="list-group-item"><a href="{{ payment.get_absolute_url }}">{{ payment }}</a> — {{ payment.amount|floatformat:2 }} ({{ payment.status }})</li>{% empty %}<li class="list-group-item">No payments yet.</li>{% endfor %}</ul>
-  </section>
+<section class="surface mb-3">
+  <div class="surface-header"><h2><i class="bi bi-arrow-left-right"></i>Transaction details</h2><span class="fs-5 fw-bold">{{ object.amount|floatformat:"2g" }}{% if object.transaction_type == 'Rental' %}<span class="text-secondary fs-6 fw-normal"> / month</span>{% endif %}</span></div>
+  <dl class="detail-grid mb-0">
+    <div><dt>Customer</dt><dd><a href="{{ object.customer.get_absolute_url }}">{{ object.customer.full_name }}</a></dd></div>
+    <div><dt>Property</dt><dd><a href="{{ object.property.get_absolute_url }}">{{ object.property.name }}</a> {{ object.property.status|status_badge }}</dd></div>
+    <div><dt>Agent</dt><dd>{{ object.agent }}</dd></div>
+    <div><dt>Source inquiry</dt><dd>{% if object.inquiry %}<a href="{{ object.inquiry.get_absolute_url }}">{{ object.inquiry.inquiry_code }}</a>{% else %}None{% endif %}</dd></div>
+    <div><dt>Type</dt><dd>{{ object.get_transaction_type_display }}</dd></div>
+    <div><dt>{% if object.transaction_type == 'Rental' %}Monthly rent{% else %}Sale price{% endif %}</dt><dd>{{ object.amount|floatformat:"2g" }}</dd></div>
+    <div><dt>Transaction date</dt><dd>{{ object.transaction_date|date:'Y-m-d' }}</dd></div>
+    <div><dt>Status</dt><dd>{{ object.status|status_badge }}</dd></div>
+    {% if object.transaction_type == 'Rental' %}<div><dt>Rental period</dt><dd>{{ object.start_date|date:'Y-m-d' }} to {{ object.end_date|date:'Y-m-d' }}</dd></div>{% endif %}
+    <div><dt>Created</dt><dd>{{ object.created_at|date:'Y-m-d H:i' }}</dd></div>
+    <div><dt>Updated</dt><dd>{{ object.updated_at|date:'Y-m-d H:i' }}</dd></div>
+  </dl>
+</section>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <section class="surface h-100">
+      <div class="surface-header"><h2><i class="bi bi-file-earmark-text"></i>Contracts</h2>
+        {% if user.role == 'admin' or object.agent_id == user.pk %}<a class="btn btn-sm btn-outline-primary" href="{% url 'core:contract_create' %}?transaction={{ object.pk }}"><i class="bi bi-plus-lg"></i>Create Contract</a>{% endif %}
+      </div>
+      <ul class="list-group list-group-flush">{% for contract in object.contracts.all %}<li class="list-group-item"><a href="{{ contract.get_absolute_url }}">{{ contract }}</a>{{ contract.status|status_badge }}</li>{% empty %}<li class="list-group-item text-secondary">No contracts yet.</li>{% endfor %}</ul>
+    </section>
+  </div>
+  <div class="col-lg-6">
+    <section class="surface h-100">
+      <div class="surface-header"><h2><i class="bi bi-cash-stack"></i>Payments</h2>
+        {% if user.role == 'admin' or object.agent_id == user.pk %}<a class="btn btn-sm btn-outline-primary" href="{% url 'core:payment_create' %}?transaction={{ object.pk }}"><i class="bi bi-plus-lg"></i>Record Payment</a>{% endif %}
+      </div>
+      <ul class="list-group list-group-flush">{% for payment in object.payments.all %}<li class="list-group-item"><a href="{{ payment.get_absolute_url }}">{{ payment }}</a><span class="d-flex align-items-center gap-2"><span class="fw-semibold">{{ payment.amount|floatformat:"2g" }}</span>{{ payment.status|status_badge }}</span></li>{% empty %}<li class="list-group-item text-secondary">No payments yet.</li>{% endfor %}</ul>
+    </section>
+  </div>
 </div>
 {% endblock %}

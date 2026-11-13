@@ -1,25 +1,42 @@
 {% extends 'core/base.html' %}
+{% load resms_ui %}
 {% block title %}{{ object }} | RESMS{% endblock %}
+{% block topbar_title %}{{ title }}s{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between mb-4"><h1>{{ title }} {{ object }}</h1><div><a class="btn btn-outline-secondary" href="{{ list_url }}">Back</a>
-{% if user.role == 'admin' or object.transaction.agent_id == user.pk %}<a class="btn btn-primary" href="{{ update_url }}">Edit</a> <a class="btn btn-outline-danger" href="{{ delete_url }}">Delete</a>{% endif %}</div></div>
-<dl class="row">
-<dt class="col-sm-3">Transaction</dt><dd class="col-sm-9"><a href="{{ object.transaction.get_absolute_url }}">{{ object.transaction }}</a></dd>
-<dt class="col-sm-3">Customer</dt><dd class="col-sm-9"><a href="{{ object.customer.get_absolute_url }}">{{ object.customer.full_name }}</a></dd>
-<dt class="col-sm-3">Amount</dt><dd class="col-sm-9">{{ object.amount|floatformat:2 }}</dd>
-<dt class="col-sm-3">Status</dt><dd class="col-sm-9">{{ object.get_status_display }}</dd>
-{% if kind == 'contract' %}
-<dt class="col-sm-3">Property</dt><dd class="col-sm-9"><a href="{{ object.property.get_absolute_url }}">{{ object.property.name }}</a></dd>
-<dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ object.get_contract_type_display }}</dd>
-<dt class="col-sm-3">Start date</dt><dd class="col-sm-9">{{ object.start_date|date:'Y-m-d' }}</dd>
-<dt class="col-sm-3">End date</dt><dd class="col-sm-9">{{ object.end_date|date:'Y-m-d'|default:'Not applicable' }}</dd>
-<dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ object.description|linebreaksbr|default:'—' }}</dd>
-{% else %}
-<dt class="col-sm-3">Payment date</dt><dd class="col-sm-9">{{ object.payment_date|date:'Y-m-d' }}</dd>
-<dt class="col-sm-3">Method</dt><dd class="col-sm-9">{{ object.get_payment_method_display }}</dd>
-<dt class="col-sm-3">Note</dt><dd class="col-sm-9">{{ object.note|linebreaksbr|default:'—' }}</dd>
-{% endif %}
-<dt class="col-sm-3">Created</dt><dd class="col-sm-9">{{ object.created_at }}</dd>
-<dt class="col-sm-3">Updated</dt><dd class="col-sm-9">{{ object.updated_at }}</dd>
-</dl>
+<div class="page-header">
+  <div>
+    <div class="eyebrow"><a href="{{ list_url }}">{{ title }}s</a> &rsaquo; {{ object }}</div>
+    <h1>{{ title }} {{ object }}</h1>
+    <p class="subtitle">{{ object.status|status_badge }}</p>
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-outline-secondary" href="{{ list_url }}"><i class="bi bi-arrow-left"></i>Back</a>
+    {% if user.role == 'admin' or object.transaction.agent_id == user.pk %}
+    <a class="btn btn-primary" href="{{ update_url }}"><i class="bi bi-pencil"></i>Edit</a>
+    <a class="btn btn-outline-danger" href="{{ delete_url }}"><i class="bi bi-trash"></i>Delete</a>
+    {% endif %}
+  </div>
+</div>
+<section class="surface">
+  <div class="surface-header"><h2><i class="bi {% if kind == 'contract' %}bi-file-earmark-text{% else %}bi-cash-stack{% endif %}"></i>{{ title }} details</h2><span class="fs-5 fw-bold">{{ object.amount|floatformat:"2g" }}</span></div>
+  <dl class="detail-grid mb-0">
+    <div><dt>Transaction</dt><dd><a href="{{ object.transaction.get_absolute_url }}">{{ object.transaction }}</a></dd></div>
+    <div><dt>Customer</dt><dd><a href="{{ object.customer.get_absolute_url }}">{{ object.customer.full_name }}</a></dd></div>
+    <div><dt>Amount</dt><dd>{{ object.amount|floatformat:"2g" }}</dd></div>
+    <div><dt>Status</dt><dd>{{ object.status|status_badge }}</dd></div>
+    {% if kind == 'contract' %}
+    <div><dt>Property</dt><dd><a href="{{ object.property.get_absolute_url }}">{{ object.property.name }}</a></dd></div>
+    <div><dt>Type</dt><dd>{{ object.get_contract_type_display }}</dd></div>
+    <div><dt>Start date</dt><dd>{{ object.start_date|date:'Y-m-d' }}</dd></div>
+    <div><dt>End date</dt><dd>{{ object.end_date|date:'Y-m-d'|default:'Not applicable' }}</dd></div>
+    <div class="wide"><dt>Description</dt><dd>{{ object.description|linebreaksbr|default:'—' }}</dd></div>
+    {% else %}
+    <div><dt>Payment date</dt><dd>{{ object.payment_date|date:'Y-m-d' }}</dd></div>
+    <div><dt>Method</dt><dd>{{ object.get_payment_method_display }}</dd></div>
+    <div class="wide"><dt>Note</dt><dd>{{ object.note|linebreaksbr|default:'—' }}</dd></div>
+    {% endif %}
+    <div><dt>Created</dt><dd>{{ object.created_at|date:'Y-m-d H:i' }}</dd></div>
+    <div><dt>Updated</dt><dd>{{ object.updated_at|date:'Y-m-d H:i' }}</dd></div>
+  </dl>
+</section>
 {% endblock %}

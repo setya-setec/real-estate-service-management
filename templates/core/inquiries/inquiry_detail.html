@@ -1,26 +1,37 @@
 {% extends 'core/base.html' %}
+{% load resms_ui %}
 {% block title %}{{ object.inquiry_code }} | RESMS{% endblock %}
+{% block topbar_title %}Inquiries{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-4">
-  <h1>Inquiry {{ object.inquiry_code }}</h1>
+<div class="page-header">
   <div>
-    <a class="btn btn-outline-secondary" href="{% url 'core:inquiry_list' %}">Back to Inquiries</a>
+    <div class="eyebrow"><a href="{% url 'core:inquiry_list' %}">Inquiries</a> &rsaquo; {{ object.inquiry_code }}</div>
+    <h1>Inquiry {{ object.inquiry_code }}</h1>
+    <p class="subtitle">{{ object.status|status_badge }}</p>
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-outline-secondary" href="{% url 'core:inquiry_list' %}"><i class="bi bi-arrow-left"></i>Back to Inquiries</a>
     {% if user.role == 'admin' or object.agent_id == user.pk %}
-    {% if object.property.status != 'Sold' %}<a class="btn btn-success" href="{% url 'core:transaction_create_from_inquiry' object.pk %}">Create Transaction</a>{% endif %}
-    <a class="btn btn-primary" href="{% url 'core:inquiry_update' object.pk %}">Edit</a>
-    <a class="btn btn-outline-danger" href="{% url 'core:inquiry_delete' object.pk %}">Delete</a>
+    {% if object.property.status != 'Sold' %}<a class="btn btn-success" href="{% url 'core:transaction_create_from_inquiry' object.pk %}"><i class="bi bi-arrow-left-right"></i>Create Transaction</a>{% endif %}
+    <a class="btn btn-primary" href="{% url 'core:inquiry_update' object.pk %}"><i class="bi bi-pencil"></i>Edit</a>
+    <a class="btn btn-outline-danger" href="{% url 'core:inquiry_delete' object.pk %}"><i class="bi bi-trash"></i>Delete</a>
     {% endif %}
   </div>
 </div>
-<dl class="row">
-  <dt class="col-sm-3">Customer</dt><dd class="col-sm-9"><a href="{{ object.customer.get_absolute_url }}">{{ object.customer.full_name }}</a></dd>
-  <dt class="col-sm-3">Property</dt><dd class="col-sm-9"><a href="{{ object.property.get_absolute_url }}">{{ object.property.name }}</a></dd>
-  <dt class="col-sm-3">Agent</dt><dd class="col-sm-9">{{ object.agent|default:'Unassigned' }}</dd>
-  <dt class="col-sm-3">Inquiry date</dt><dd class="col-sm-9">{{ object.inquiry_date|date:'Y-m-d' }}</dd>
-  <dt class="col-sm-3">Status</dt><dd class="col-sm-9">{{ object.get_status_display }}</dd>
-  <dt class="col-sm-3">Created</dt><dd class="col-sm-9">{{ object.created_at|date:'Y-m-d H:i' }}</dd>
-  <dt class="col-sm-3">Updated</dt><dd class="col-sm-9">{{ object.updated_at|date:'Y-m-d H:i' }}</dd>
-</dl>
-<h2 class="h5">Message / notes</h2>
-{{ object.message|default:'No notes provided.'|linebreaks }}
+<section class="surface mb-3">
+  <div class="surface-header"><h2><i class="bi bi-chat-left-text"></i>Inquiry details</h2></div>
+  <dl class="detail-grid mb-0">
+    <div><dt>Customer</dt><dd><a href="{{ object.customer.get_absolute_url }}">{{ object.customer.full_name }}</a></dd></div>
+    <div><dt>Property</dt><dd><a href="{{ object.property.get_absolute_url }}">{{ object.property.name }}</a></dd></div>
+    <div><dt>Agent</dt><dd>{{ object.agent|default:'Unassigned' }}</dd></div>
+    <div><dt>Inquiry date</dt><dd>{{ object.inquiry_date|date:'Y-m-d' }}</dd></div>
+    <div><dt>Status</dt><dd>{{ object.status|status_badge }}</dd></div>
+    <div><dt>Created</dt><dd>{{ object.created_at|date:'Y-m-d H:i' }}</dd></div>
+    <div><dt>Updated</dt><dd>{{ object.updated_at|date:'Y-m-d H:i' }}</dd></div>
+  </dl>
+</section>
+<section class="surface">
+  <div class="surface-header"><h2><i class="bi bi-journal-text"></i>Message / notes</h2></div>
+  <div class="surface-body prose">{{ object.message|default:'No notes provided.'|linebreaks }}</div>
+</section>
 {% endblock %}

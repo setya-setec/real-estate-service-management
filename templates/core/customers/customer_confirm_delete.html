@@ -1,12 +1,27 @@
 {% extends 'core/base.html' %}
 {% block title %}Delete Customer | RESMS{% endblock %}
 {% block content %}
-<h1>Delete Customer</h1>
-<p>{{ object.customer_code }} — {{ object.full_name }}</p>
-<button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#deleteCustomerModal">Delete Customer</button>
-<a class="btn btn-outline-secondary" href="{{ object.get_absolute_url }}">Cancel</a>
+<div class="page-header">
+  <div>
+    <div class="eyebrow">Danger zone</div>
+    <h1>Delete Customer</h1>
+  </div>
+</div>
+<section class="surface" style="max-width: 720px">
+  <div class="surface-body danger-panel">
+    <span class="danger-icon"><i class="bi bi-exclamation-triangle"></i></span>
+    <div>
+      <h2 class="h6 mb-1">You are about to permanently delete this record</h2>
+      <p class="mb-0 text-secondary">{{ object.customer_code }} — {{ object.full_name }}</p>
+    </div>
+  </div>
+  <div class="surface-footer">
+    <a class="btn btn-outline-secondary" href="{{ object.get_absolute_url }}">Cancel</a>
+    <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#deleteCustomerModal"><i class="bi bi-trash"></i>Delete Customer</button>
+  </div>
+</section>
 <div class="modal fade" id="deleteCustomerModal" tabindex="-1" aria-labelledby="deleteCustomerTitle" aria-describedby="deleteCustomerDescription" aria-hidden="true">
-  <div class="modal-dialog"><div class="modal-content">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
     <div class="modal-header"><h2 class="modal-title fs-5" id="deleteCustomerTitle">Confirm deletion</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
     <div class="modal-body" id="deleteCustomerDescription">Delete <strong>{{ object.full_name }}</strong> ({{ object.customer_code }})? This cannot be undone. Customers with linked records cannot be deleted.</div>
     <div class="modal-footer">

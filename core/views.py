@@ -40,7 +40,10 @@ class DashboardView(RoleRequiredMixin, TemplateView):
             "paid_total": paid_total,
         }
         labels = ["Total properties", "Available properties", "Sold properties", "Rented properties", "Total customers", "Total inquiries", "Upcoming appointments", "Total transactions", "Recorded payments", "Sum of Paid payments"]
-        context.update(stats=stats, cards=list(zip(labels, list(stats.values())[:-1] + [f"{paid_total:,.2f}"])),
+        icons = ["buildings", "house-check", "tag", "key", "people", "chat-left-text", "calendar-event", "arrow-left-right", "receipt", "cash-coin"]
+        tones = ["blue", "green", "red", "indigo", "violet", "amber", "teal", "blue", "slate", "green"]
+        values = list(stats.values())[:-1] + [f"{paid_total:,.2f}"]
+        context.update(stats=stats, cards=list(zip(labels, values, icons, tones)),
                        chart_labels=list(Property.Status.labels), chart_values=[counts.get(value, 0) for value in Property.Status.values])
         return context
 

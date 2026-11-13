@@ -1,15 +1,10 @@
-{% extends 'core/base.html' %}
+{% extends 'core/partials/form_base.html' %}
 {% block title %}{{ title }} | RESMS{% endblock %}
-{% block content %}
-<h1>{% if object %}Edit{% else %}Add{% endif %} {{ title }}</h1>
-{% if kind == 'payment' %}<p class="text-muted">Manual payment record. Saving this form does not transfer money.</p>{% endif %}
-<form method="post" class="card card-body">{% csrf_token %}
-  {{ form.non_field_errors }}
-  <div class="row">{% for field in form %}<div class="col-md-6 mb-3">
-    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
-    {{ field }}<div class="text-danger">{{ field.errors }}</div>
-    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-  </div>{% endfor %}</div>
-  <div><button class="btn btn-primary" type="submit">Save {{ title }}</button> <a class="btn btn-outline-secondary" href="{{ list_url }}">Cancel</a></div>
-</form>
-{% endblock %}
+{% block topbar_title %}{{ title }}s{% endblock %}
+{% block eyebrow %}Deals &middot; {{ title }}s{% endblock %}
+{% block heading %}{% if object %}Edit{% else %}Add{% endif %} {{ title }}{% endblock %}
+{% block cancel_url %}{{ list_url }}{% endblock %}
+{% block cancel_url_footer %}{{ list_url }}{% endblock %}
+{% block section_title %}{{ title }} details{% endblock %}
+{% block save_label %}Save {{ title }}{% endblock %}
+{% block note %}{% if kind == 'payment' %}<div class="info-note"><i class="bi bi-info-circle"></i><span>Manual payment record. Saving this form does not transfer money.</span></div>{% endif %}{% endblock %}

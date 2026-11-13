@@ -8,3 +8,18 @@ db.sqlite3
 __pycache__/
 *.py[cod]
 *.log
+
+# Django
+staticfiles/
+db.sqlite3-journal
+
+# Tests / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

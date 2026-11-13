@@ -1,22 +1,91 @@
 {% extends 'core/base.html' %}
 {% block title %}Dashboard | RESMS{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
 {% block content %}
-<h1 class="mb-4">Dashboard</h1>
-<div class="row g-3 mb-4">{% for label,value in cards %}<div class="col-sm-6 col-xl-3"><div class="card h-100"><div class="card-body"><h2 class="h6 text-muted">{{ label }}</h2><p class="fs-3 mb-0">{{ value }}</p></div></div></div>{% endfor %}</div>
-<section class="card"><div class="card-body"><h2 class="h4">Properties by status</h2>
-<div style="max-width: 650px; height: 320px"><canvas id="propertyChart" role="img" aria-label="Property counts by status. The same counts are listed below."></canvas></div>
-<dl class="row mt-3 mb-0"><dt class="col-sm-3">Available</dt><dd class="col-sm-9">{{ chart_values.0 }}</dd><dt class="col-sm-3">Reserved</dt><dd class="col-sm-9">{{ chart_values.1 }}</dd><dt class="col-sm-3">Sold</dt><dd class="col-sm-9">{{ chart_values.2 }}</dd><dt class="col-sm-3">Rented</dt><dd class="col-sm-9">{{ chart_values.3 }}</dd></dl>
-</div></section>
+<div class="page-header">
+  <div>
+    <div class="eyebrow">Overview</div>
+    <h1>Welcome back, {{ user.get_full_name|default:user.username }}</h1>
+    <p class="subtitle">Here is the current state of the portfolio as of {% now 'l, j F Y' %}.</p>
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-outline-secondary" href="{% url 'core:report_list' %}"><i class="bi bi-bar-chart-line"></i>View reports</a>
+    <a class="btn btn-primary" href="{% url 'core:property_create' %}"><i class="bi bi-plus-lg"></i>Add property</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, value, icon, tone in cards %}
+  <div class="col-sm-6 col-xl-3">
+    <div class="surface stat-card">
+      <span class="stat-icon tone-{{ tone }}"><i class="bi bi-{{ icon }}"></i></span>
+      <div>
+        <p class="stat-label">{{ label }}</p>
+        <p class="stat-value">{{ value }}</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-8">
+    <section class="surface h-100">
+      <div class="surface-header">
+        <h2><i class="bi bi-bar-chart"></i>Properties by status</h2>
+        <span class="count-pill">{{ stats.total_properties }} total</span>
+      </div>
+      <div class="surface-body">
+        <div style="height: 300px"><canvas id="propertyChart" role="img" aria-label="Property counts by status. The same counts are listed below."></canvas></div>
+        <ul class="legend-list">
+          <li><span class="dot" style="background:#10b981"></span>Available <strong>{{ chart_values.0 }}</strong></li>
+          <li><span class="dot" style="background:#f59e0b"></span>Reserved <strong>{{ chart_values.1 }}</strong></li>
+          <li><span class="dot" style="background:#ef4444"></span>Sold <strong>{{ chart_values.2 }}</strong></li>
+          <li><span class="dot" style="background:#3b82f6"></span>Rented <strong>{{ chart_values.3 }}</strong></li>
+        </ul>
+      </div>
+    </section>
+  </div>
+  <div class="col-xl-4">
+    <section class="surface h-100">
+      <div class="surface-header"><h2><i class="bi bi-lightning-charge"></i>Quick actions</h2></div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="{% url 'core:inquiry_create' %}"><span><i class="bi bi-chat-left-text text-primary me-2"></i>Log a new inquiry</span><i class="bi bi-chevron-right text-secondary"></i></a>
+        <a class="list-group-item list-group-item-action" href="{% url 'core:appointment_create' %}"><span><i class="bi bi-calendar-plus text-primary me-2"></i>Schedule an appointment</span><i class="bi bi-chevron-right text-secondary"></i></a>
+        <a class="list-group-item list-group-item-action" href="{% url 'core:transaction_create' %}"><span><i class="bi bi-arrow-left-right text-primary me-2"></i>Start a transaction</span><i class="bi bi-chevron-right text-secondary"></i></a>
+        <a class="list-group-item list-group-item-action" href="{% url 'core:payment_create' %}"><span><i class="bi bi-cash-stack text-primary me-2"></i>Record a payment</span><i class="bi bi-chevron-right text-secondary"></i></a>
+        <a class="list-group-item list-group-item-action" href="{% url 'core:customer_list' %}"><span><i class="bi bi-people text-primary me-2"></i>Browse customers</span><i class="bi bi-chevron-right text-secondary"></i></a>
+      </div>
+    </section>
+  </div>
+</div>
 {{ chart_labels|json_script:'property-labels' }}{{ chart_values|json_script:'property-values' }}
 {% endblock %}
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
 <script>
 if (typeof Chart !== 'undefined') {
+  Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+  Chart.defaults.color = '#64748b';
   new Chart(document.getElementById('propertyChart'), {
     type: 'bar',
-    data: {labels: JSON.parse(document.getElementById('property-labels').textContent), datasets: [{label: 'Properties', data: JSON.parse(document.getElementById('property-values').textContent), backgroundColor: ['#198754', '#ffc107', '#dc3545', '#0d6efd']}]},
-    options: {responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true, ticks: {precision: 0}}}, plugins: {legend: {display: false}}}
+    data: {
+      labels: JSON.parse(document.getElementById('property-labels').textContent),
+      datasets: [{
+        label: 'Properties',
+        data: JSON.parse(document.getElementById('property-values').textContent),
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'],
+        borderRadius: 8, borderSkipped: false, maxBarThickness: 56
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: {beginAtZero: true, ticks: {precision: 0}, grid: {color: '#eef1f5'}, border: {display: false}},
+        x: {grid: {display: false}, border: {display: false}}
+      },
+      plugins: {legend: {display: false}, tooltip: {backgroundColor: '#0f1b2d', padding: 10, cornerRadius: 8}}
+    }
   });
 }
 </script>

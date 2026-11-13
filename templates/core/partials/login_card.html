@@ -1,0 +1,21 @@
+<div class="auth-card">
+  <div class="brand">
+    <span class="brand-mark"><i class="bi bi-buildings"></i></span>
+    <span><span class="brand-name">RESMS</span><span class="brand-sub">Real Estate Service Management</span></span>
+  </div>
+  <h1 class="h4 mb-1">Welcome back</h1>
+  <p class="text-secondary mb-4">Sign in to manage properties, clients and deals.</p>
+  <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger"><i class="bi bi-exclamation-octagon-fill"></i><span>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span></div>{% endif %}
+    {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      <div class="input-icon"><i class="bi {% if field.name == 'password' %}bi-lock{% else %}bi-person{% endif %}"></i>{{ field }}</div>
+      {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    {% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-primary w-100 justify-content-center py-2 mt-2" type="submit"><i class="bi bi-box-arrow-in-right"></i>Log in</button>
+  </form>
+</div>
